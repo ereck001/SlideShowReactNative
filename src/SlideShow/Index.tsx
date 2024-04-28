@@ -33,14 +33,42 @@ export default (): JSX.Element => {
   const cardMargin = 8;
   const snapToOffsets = [0];
   const flatList = useRef<FlatList>(null);
-  const [currentImage, setCurrentImage] = useState<number>(0);
+  const [currentImage, setCurrentImage] = useState<number>(0);  
+  const [currentIndex, setCurrentIndex] = useState<number>(0); 
   const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+  const LIST_LENGTH = DATA.length;
+  const INTERVAL = 3500
 
   DATA.map((_, index) => {
     snapToOffsets.push(
       (index + 1) * windowWidth - cardMargin * (2 * index) - cardMargin * 2
     );
   });
+
+  useEffect( ()=>{
+    if(currentIndex == LIST_LENGTH){
+      setCurrentIndex(0)
+    }    
+    initRoll(currentIndex)  
+  },[currentIndex])
+
+  async function initRoll(i:number):Promise<void>{
+    if(i < LIST_LENGTH){
+      await  handleRoll(i)      
+    }    
+  }
+  
+  async function handleRoll(i:number):Promise<void>{ 
+    const myPromise = new Promise(() => {
+      setTimeout(() => {
+        // console.log(i);        
+        handleDotClick(i)   
+        setCurrentIndex(i + 1)             
+      }, INTERVAL);      
+    });
+
+    await myPromise
+  }
 
   function handleDotClick(i: number): void {
     setCurrentImage(i);
@@ -59,7 +87,7 @@ export default (): JSX.Element => {
     }, [currentImage]);
     return (
       <AnimatedPressable
-        onPress={() => handleDotClick(index)}
+        //onPress={() => handleDotClick(index)}
         key={dot.id}
         style={[styles.dot, { width: dotWidth }]}
       />
